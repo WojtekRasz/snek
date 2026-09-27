@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 #include <random>
 #include <set>
 #include <vector>
@@ -131,7 +132,7 @@ private:
     if (y < 0 || y >= height || x < 0 || x >= width) throw std::runtime_error("Outside board!!!");
     return fields[y * width + x];
   }
-  Field &get_field(const Pos pos){return fields[pos.y * width + pos.x];}
+  Field &get_field(const Pos pos){return get_field(pos.x , pos.y);}
 
   const uint32_t width;
   const uint32_t height;
@@ -204,6 +205,7 @@ int main(int, char**) {
   board.put_random_apple();
 
   bool is_running = true;
+  std::queue<Direction> dir_queue;
   SDL_Event event;
   while (is_running) {
     while (SDL_PollEvent(&event)) {
@@ -213,21 +215,25 @@ int main(int, char**) {
       if (event.type == SDL_EVENT_KEY_DOWN) {
         switch (event.key.key) {
           case SDLK_W:
-            curr_direction = Direction::UP;
+            dir_queue.push(Direction::UP);
             break;
           case SDLK_D:
-            curr_direction = Direction::RIGHT;
+            dir_queue.push(Direction::RIGHT);
             break;
           case SDLK_S:
-            curr_direction = Direction::DOWN;
+            dir_queue.push(Direction::DOWN);
             break;
           case SDLK_A:
-            curr_direction = Direction::LEFT;
+            dir_queue.push(Direction::LEFT);
             break;
           default:
             break;
         }
       }
+    }
+    if (!dir_queue.empty()) {
+      curr_direction = dir_queue.front();
+      dir_queue.pop();
     }
 
     snek.move(curr_direction);
@@ -239,7 +245,7 @@ int main(int, char**) {
 
     SDL_RenderPresent(renderer);
 
-    SDL_Delay(500);
+    SDL_Delay(200);
   }
 
   SDL_DestroyRenderer(renderer);
