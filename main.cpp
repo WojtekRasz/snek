@@ -15,7 +15,7 @@ constexpr uint32_t BOARD_HEIGHT = 20;
 constexpr float H_MARGIN = 10.0f;
 constexpr float V_MARGIN = 10.0f;
 
-constexpr uint32_t MIN_SNAKE_OFFSET = 3;
+constexpr uint32_t MIN_SNAKE_OFFSET = 6;
 
 constexpr float FIELD_SIZE = (WINDOW_WIDTH - 2*H_MARGIN)/BOARD_WIDTH;
 
@@ -208,6 +208,14 @@ int main(int, char**) {
   Snek snek{board, {dist_x(gen), dist_y(gen)}, Direction::DOWN};
 
   board.put_random_apple();
+
+  SDL_SetRenderDrawColor(renderer, 200, 20, 200, 255);
+  SDL_RenderClear(renderer);
+
+  board.draw(renderer);
+
+  SDL_RenderPresent(renderer);
+  SDL_Delay(3000);
 
   bool is_running = true;
   std::queue<Direction> dir_queue;
