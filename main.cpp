@@ -152,7 +152,7 @@ public:
   }
 
   void move(Direction dir) {
-    const uint32_t tail = (head + 1) % poss.size();
+    uint32_t tail = (head + 1) % poss.size();
     const Pos new_head_pos = move_in_dir(poss[head], dir);
     try {
       switch (board.get_field_state(new_head_pos)) {
@@ -161,12 +161,17 @@ public:
           throw std::runtime_error("Hit snek");
         case FieldState::APPLE:
           board.put_random_apple();
-          poss.insert(poss.begin() + tail, poss[tail]);
+          board.set_field_state(poss[head], FieldState::SNAKE);
+          board.set_field_state(new_head_pos, FieldState::SNAKE_HEAD);
+          poss.insert(poss.begin() + tail, new_head_pos);
+          head = tail;
+          break;
         case FieldState::EMPTY:
           board.set_field_state(poss[head], FieldState::SNAKE);
           board.set_field_state(poss[tail], FieldState::EMPTY);
           poss[tail] = new_head_pos;
           board.set_field_state(new_head_pos, FieldState::SNAKE_HEAD);
+
           head = tail;
           break;
       }
@@ -215,15 +220,19 @@ int main(int, char**) {
       if (event.type == SDL_EVENT_KEY_DOWN) {
         switch (event.key.key) {
           case SDLK_W:
+          case SDLK_UP:
             dir_queue.push(Direction::UP);
             break;
           case SDLK_D:
+          case SDLK_RIGHT:
             dir_queue.push(Direction::RIGHT);
             break;
           case SDLK_S:
+          case SDLK_DOWN:
             dir_queue.push(Direction::DOWN);
             break;
           case SDLK_A:
+          case SDLK_LEFT:
             dir_queue.push(Direction::LEFT);
             break;
           default:
